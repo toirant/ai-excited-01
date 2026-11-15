@@ -1,20 +1,23 @@
-// ai-excited-01: "Golden Koi Rising".
-// Copies the entry image to the output directory. The judge sees exactly
-// the bytes in /output/entry.png, so the copy must be byte-identical and
-// deterministic: same input, same output, every run.
-import { copyFileSync, mkdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+// Golden Koi Rising — ai-excited-01 entry program.
+// Copies the entry image (entry.png, beside this file) to the output
+// directory, so the judge sees exactly those bytes. Node 22, stdlib only.
+const fs = require("node:fs");
+const path = require("node:path");
 
 const outDir = process.env.MAKEFUN_OUTPUT_DIR || "/output";
-mkdirSync(outDir, { recursive: true });
-const source = new URL("./entry.png", import.meta.url);
-const target = join(outDir, "entry.png");
-copyFileSync(source, target);
-// Self-check: a partial copy would break the byte-identical-runs rule,
-// so refuse to exit cleanly unless the copy matches the source size.
-const sourceBytes = statSync(source).size;
-const targetBytes = statSync(target).size;
-if (sourceBytes !== targetBytes) {
-  throw new Error(`entry.png copy mismatch: ${targetBytes} of ${sourceBytes} bytes`);
+const src = path.join(__dirname, "entry.png");
+const dest = path.join(outDir, "entry.png");
+
+fs.mkdirSync(outDir, { recursive: true });
+fs.copyFileSync(src, dest);
+
+// Self-check: the copy must be byte-identical to the source, so the two
+// grader runs always produce the same output bytes.
+const srcBytes = fs.readFileSync(src);
+const destBytes = fs.readFileSync(dest);
+if (srcBytes.length !== destBytes.length || !srcBytes.equals(destBytes)) {
+  throw new Error("entry.png copy differs from source");
 }
-console.log(`entry.png written to ${target} (${targetBytes} bytes)`);
+
+const size = destBytes.length;
+console.log(`wrote ${dest} (${size} bytes, verified identical to source)`);
