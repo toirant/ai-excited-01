@@ -11,7 +11,7 @@ fs.copyFileSync(src, dest);
 const srcBytes = fs.readFileSync(src);
 const destBytes = fs.readFileSync(dest);
 if (srcBytes.length !== destBytes.length || !srcBytes.equals(destBytes)) {
-  console.error("copy mismatch: source " + srcBytes.length + " bytes, output " + destBytes.length + " bytes");
+  console.error("copy mismatch: source and output differ");
   process.exit(1);
 }
-console.log("wrote " + dest + " (" + destBytes.length + " bytes, verified identical)");
+console.log("entry.png written: " + destBytes.length + " bytes (verified byte-identical)");
